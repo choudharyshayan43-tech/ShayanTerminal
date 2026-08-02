@@ -1,6 +1,7 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -8,6 +9,10 @@ on:
   pull_request:
     branches:
       - master
+
+
+concurrency:
+  
 
 jobs:
   build:
