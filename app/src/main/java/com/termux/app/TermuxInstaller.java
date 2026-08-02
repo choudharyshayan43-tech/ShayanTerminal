@@ -218,6 +218,8 @@ final class TermuxInstaller {
 
                     Logger.logInfo(LOG_TAG, "Bootstrap packages installed successfully.");
 
+                createShayanStartupBanner();
+
                     // Recreate env file since termux prefix was wiped earlier
                     TermuxShellEnvironment.writeEnvironmentToFile(activity);
 
@@ -237,6 +239,45 @@ final class TermuxInstaller {
                 }
             }
         }.start();
+    }
+
+
+    private static void createShayanStartupBanner() {
+        try {
+            File bashrcFile = new File(TermuxConstants.TERMUX_HOME_DIR_PATH, ".bashrc");
+
+            if (bashrcFile.exists()) {
+                return;
+            }
+
+            String startup =
+                "clear\n" +
+                "printf '\\033[1;32m'\n" +
+                "cat <<'SHAYAN_BANNER'\n" +
+                "  SSSSS  H   H   AAA   Y   Y   AAA   N   N\n" +
+                "  S      H   H  A   A   Y Y   A   A  NN  N\n" +
+                "  SSSSS  HHHHH  AAAAA    Y    AAAAA  N N N\n" +
+                "      S  H   H  A   A    Y    A   A  N  NN\n" +
+                "  SSSSS  H   H  A   A    Y    A   A  N   N\n" +
+                "SHAYAN_BANNER\n" +
+                "printf '\\033[0m'\n" +
+                "echo\n" +
+                "printf '\\033[1;36mSHAYAN TERMINAL\\033[0m\\n'\n" +
+                "printf '\\033[1;33mCredit: Shayan\\033[0m\\n'\n" +
+                "printf '\\033[1;32mWelcome to Shayan Terminal\\033[0m\\n'\n" +
+                "echo\n";
+
+            try (FileOutputStream outputStream = new FileOutputStream(bashrcFile)) {
+                outputStream.write(startup.getBytes("UTF-8"));
+                outputStream.flush();
+            }
+
+            Os.chmod(bashrcFile.getAbsolutePath(), 0600);
+            Logger.logInfo(LOG_TAG, "Shayan startup banner created.");
+        } catch (Exception error) {
+            Logger.logError(LOG_TAG,
+                "Failed to create Shayan startup banner: " + error.getMessage());
+        }
     }
 
     public static void showBootstrapErrorDialog(Activity activity, Runnable whenDone, String message) {
